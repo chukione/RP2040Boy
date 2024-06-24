@@ -1,10 +1,12 @@
-# ~~Arduino~~RP4020boy
-~~Official~~ ArduinoBoy port to RP4020 Uc, its cheapear than avr Uc, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
+# ~~Arduino~~RP2040boy
+~~Official~~ ArduinoBoy port to RP2040 Uc, its cheapear than avr Uc, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
 At the moment, the only tested mode is mGB.
 
 ![rp4020boy](/schematic/20240618_172258.jpg)
 
 ![schematic](/schematic/schematic.png)
+
+
 
 Repository for serial MIDI communication to the Nintendo Gameboy.
 
