@@ -1,6 +1,6 @@
 # ~~Arduino~~RP2040boy
 ~~Official~~ ArduinoBoy port to RP2040 Uc, its cheapear than avr Uc, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
-At the moment, the only tested mode is mGB.
+At the moment, the only tested mode is mGB, and LSJD midiout is broken
 
 ![rp4020boy](/schematic/20240618_172258.jpg)
 
