@@ -1,6 +1,10 @@
 # ~~Arduino~~RP2040boy
 ~~Official~~ ArduinoBoy port to RP2040 Uc, its cheapear than avr Uc, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
+
+On the photo, im using a transistor and a led, but is removed on the schematic beacause is a non sense. In original code (what i left untouched), the optoisolator is powered without condition on setup() 
+
 USB midi with TynyUSB lib, and serial midi work.
+
 At the moment, the only tested mode is mGB, and LSJD midiout via usb is broken (serial must work, but its disabled.).
 
 ![rp4020boy](/schematic/20240712_131640.jpg)
