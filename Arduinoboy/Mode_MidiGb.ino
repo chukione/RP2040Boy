@@ -30,12 +30,17 @@ void modeMidiGbSetup()
 void modeMidiGb()
 {
   boolean sendByte = false;
+  byte message_type;
+  byte channel;
+  byte first_byte;
+  byte second_byte;
   while (1)
   { // Loop foreverrrr
     modeMidiGbUsbMidiReceive();
 
     if (serial->available())
-    {                                    // If MIDI is sending
+    {
+      midi_mode = 0;                     // If MIDI is sending
       incomingMidiByte = serial->read(); // Get the byte sent from MIDI
 
       if (!checkForProgrammerSysex(incomingMidiByte) && !usbMode)
@@ -45,12 +50,12 @@ void modeMidiGb()
       {
         switch (incomingMidiByte & 0xF0)
         {
-        case 0xF0:
+        case 0xF0: // system message type
           midiValueMode = false;
           break;
         default:
           sendByte = false;
-          midiStatusChannel = incomingMidiByte & 0x0F;
+          midiStatusChannel = incomingMidiByte & 0x0F; // channel
           midiStatusType = incomingMidiByte & 0xF0;
           if (midiStatusChannel == memory[MEM_MGB_CH])
           {
@@ -86,6 +91,9 @@ void modeMidiGb()
           {
 #ifndef USE_PICO
             statusLedOn();
+#else
+            message_type = midiStatusType;
+            channel = midiStatusChannel;
 #endif
             sendByteToGameboy(midiData[0]);
             delayMicroseconds(GB_MIDI_DELAY);
@@ -100,12 +108,14 @@ void modeMidiGb()
         midiAddressMode = false;
         midiValueMode = true;
         midiData[1] = incomingMidiByte;
+        first_byte = midiData[1];
         sendByteToGameboy(midiData[1]);
         delayMicroseconds(GB_MIDI_DELAY);
       }
       else if (midiValueMode)
       {
         midiData[2] = incomingMidiByte;
+        second_byte = midiData[2];
         midiAddressMode = true;
         midiValueMode = false;
 
@@ -114,6 +124,9 @@ void modeMidiGb()
 #ifndef USE_PICO
         statusLedOn();
         blinkLight(midiData[0], midiData[2]);
+#else
+        uint32_t mididata = (uint32_t)message_type | ((uint32_t)channel << 8) | ((uint32_t)first_byte << 16) | ((uint32_t)second_byte << 24);
+        rp2040.fifo.push_nb(mididata);
 #endif
       }
     }
@@ -333,6 +346,7 @@ void modeMidiGbUsbMidiReceive()
 #ifdef USE_PICO
   while (usbMIDI.read())
   {
+    midi_mode = 1;
     uint8_t ch = usbMIDI.getChannel() - 1;
     boolean send = false;
     if (ch <= 5)

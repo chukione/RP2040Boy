@@ -117,6 +117,8 @@ U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #include "lsdj.h"
 #include "nanoloop.h"
 #include "mgb.h"
+#include "din5.h"
+#include "usb.h"
 #else
 U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #endif
@@ -138,7 +140,7 @@ byte defaultMemoryMap[MEM_MAX] = {
     0, 1, 2, 3,             // midiOutNoteMessageChannels - midi channels for lsdj midi out note messages Default: channels 1,2,3,4
     0, 1, 2, 3,             // midiOutCCMessageChannels - midi channels for lsdj midi out CC messages Default: channels 1,2,3,4
     1, 1, 1, 1,             // midiOutCCMode - CC Mode, 0=use 1 midi CC, with the range of 00-6F, 1=uses 7 midi CCs with the
-                // range of 0-F (the command's first digit would be the CC#), either way the value is scaled to 0-127 on output
+                            // range of 0-F (the command's first digit would be the CC#), either way the value is scaled to 0-127 on output
     1, 1, 1, 1,             // midiOutCCScaling - CC Scaling- Setting to 1 scales the CC value range to 0-127 as oppose to lsdj's incomming 00-6F (0-112) or 0-F (0-15)
     1, 2, 3, 7, 10, 11, 12, // pu1: midiOutCCMessageNumbers - CC numbers for lsdj midi out, if CCMode is 1, all 7 ccs are used per channel at the cost of a limited resolution of 0-F
     1, 2, 3, 7, 10, 11, 12, // pu2
@@ -228,9 +230,9 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
   digitalWriteFast(D28, bit_in);
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
 
-int pinGBClock = A0;         // Analog In 0 - clock out to gameboy
-int pinGBSerialOut = A1;     // Analog In 1 - serial data to gameboy
-int pinGBSerialIn = A2;      // Analog In 2 - serial data from gameboy
+int pinGBClock = A0;        // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = A1;    // Analog In 1 - serial data to gameboy
+int pinGBSerialIn = A2;     // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = D8; // power pin for midi input opto-isolator
 // int pinStatusLed = D17;              // Status LED
 // int pinLeds[] = {D25, D24, D23, D22, D21, D20}; // LED Pins
@@ -463,6 +465,7 @@ uint8_t mapQueueWaitUsb = 5;    // 5ms - Needs to be longer because message pack
  ***************************************************************************/
 #define GB_MIDI_DELAY 500 // Microseconds to delay the sending of a byte to gb
 
+int midi_mode = 0; // 0 - serial midi, 1 - usb midi
 void setup()
 {
   /*
@@ -472,8 +475,16 @@ void setup()
 #ifdef USE_PICO
   usb_midi.setStringDescriptor("picoBoy MIDI");
   usbMIDI.begin(MIDI_CHANNEL_OMNI);
-  while (!TinyUSBDevice.mounted())
-    delay(1);
+  unsigned long time_now = 0;
+  time_now = millis();
+  while (millis() < time_now + 2000) //2 seconds to mount TinyUSB device
+  {
+  }
+  if (TinyUSBDevice.mounted())
+  {
+    midi_mode = 1;
+  }
+  delay(1);
   Wire.setSDA(4u);
   Wire.setSCL(5u);
   Wire.begin();
@@ -665,6 +676,14 @@ void loop1()
         u8g2.print("LSDJ MIDI");
         u8g2.setCursor(5, 20);
         break;
+      }
+      if (midi_mode == 0)
+      {
+        u8g2.drawXBMP(105, 2, din5_width, din5_height, din5_bits);
+      }
+      else if (midi_mode == 1)
+      {
+        u8g2.drawXBMP(89, 2, usb_width, usb_height, usb_bits);
       }
       u8g2.setFont(u8g2_font_6x12_tf);
       u8g2.setCursor(1, 34);
