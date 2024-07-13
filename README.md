@@ -5,7 +5,7 @@ On the photo, im using a transistor and a led, but is removed on the schematic b
 
 USB midi with TynyUSB lib, and serial midi work.
 
-At the moment, the only tested mode is mGB, and LSJD midiout via usb is broken (serial must work, but its disabled.).
+At the moment, the only tested mode is mGB. LSJD midiout via usb is broken (serial must work, but its disabled.)
 
 ![rp4020boy](/schematic/20240712_131640.jpg)
 
