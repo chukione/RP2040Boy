@@ -36,6 +36,7 @@ void modeLSDJMidiout()
 #ifdef USE_LEONARDO
   midiEventPacket_t packet;
 #endif
+
   while (1)
   {
     if (getIncommingSlaveByte())
@@ -50,7 +51,7 @@ void modeLSDJMidiout()
           usbMIDI.sendRealTime((int)0xF8);
 #endif
 #ifdef USE_PICO
-          usbMIDI.sendRealTime((midi::MidiType)0xF8);
+          usbMIDI.sendRealTime(midi::Clock);
 #endif
 #ifdef USE_LEONARDO
           packet = {0x0F, 0xF8};
@@ -64,7 +65,7 @@ void modeLSDJMidiout()
           usbMIDI.sendRealTime((int)0xFC);
 #endif
 #ifdef USE_PICO
-          usbMIDI.sendRealTime((midi::MidiType)0xFC);
+          usbMIDI.sendRealTime(midi::Stop);
 #endif
 #ifdef USE_LEONARDO
           packet = {0x0F, 0xFC};
@@ -79,7 +80,7 @@ void modeLSDJMidiout()
           usbMIDI.sendRealTime((int)0xFA);
 #endif
 #ifdef USE_PICO
-          usbMIDI.sendRealTime((midi::MidiType)0xFA);
+          usbMIDI.sendRealTime(midi::Start);
 #endif
 #ifdef USE_LEONARDO
           packet = {0x0F, 0xFA};

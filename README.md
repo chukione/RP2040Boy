@@ -7,6 +7,8 @@ USB midi with TynyUSB lib, and serial midi work.
 
 At the moment, the only tested mode is mGB. LSJD midiout via usb is broken (serial must work, but its disabled.)
 
+![rp4020boy_case](/schematic/20240731_121222.jpg)
+![rp4020boy_pcb](/schematic/20240726_083734.jpg)
 ![rp4020boy](/schematic/20240712_131640.jpg)
 
 ![schematic](/schematic/rp2040boy_schematic.png)
