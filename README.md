@@ -1,5 +1,5 @@
 # ~~Arduino~~RP2040boy
-~~Official~~ ArduinoBoy port to RP2040 Uc, its cheapear than avr Uc, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
+~~Official~~ ArduinoBoy port to RP2040 uC, its cheapear than avr uC, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
 
 On the breadboard photo, im using a transistor and a led, but is removed on the schematic beacause is a non sense. In original code (what i left untouched), the optoisolator is powered without condition on setup() 
 
@@ -7,7 +7,7 @@ USB midi with TynyUSB lib, and serial midi work.
 
 At the moment, the only tested mode is mGB. LSJD midiout via usb is broken (serial must work, but its disabled.)
 
-I normaly use linux, the dependencies and the pico toolchain is installed automacally on vscode with platformio extension, but on windows, you need to enable long paths on both git, and windows as described [here](https://arduino-pico.readthedocs.io/en/latest/platformio.html#important-steps-for-windows-users-before-installing). On arduino ide, you need to add the Earle Philhower core as described [here](https://learn.adafruit.com/rp2040-arduino-with-the-earlephilhower-core/installing-the-earlephilhower-core), also need to add the u8g2 library and the forty seven effects midi library an select the tinyusb usb stack on the menu.
+I normaly use linux, the dependencies and the pico toolchain is installed automacally on vscode with platformio extension, but on windows, you need to enable long paths on both git, and windows as described [here](https://arduino-pico.readthedocs.io/en/latest/platformio.html#important-steps-for-windows-users-before-installing). On arduino ide, you need to add the Earle Philhower core as described [here](https://learn.adafruit.com/rp2040-arduino-with-the-earlephilhower-core/installing-the-earlephilhower-core), also need to add the u8g2 library and the forty seven effects midi library and select the tinyusb usb stack on the menu.
 
 ![rp4020boy_case](/schematic/20240731_121222.jpg)
 ![rp4020boy_pcb](/schematic/20240726_083734.jpg)
