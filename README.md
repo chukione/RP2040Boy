@@ -1,5 +1,5 @@
 # ~~Arduino~~RP2040boy
-~~Official~~ ArduinoBoy port to RP2040 uC, its cheapear than avr uC, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
+~~Official~~ ArduinoBoy port to RP2040 uC, its cheapear than a avr uC, it have so much more ram than a avr. The available boards come with megabytes of flash space, making ideal to use a oled display instead of the leds array.
 
 On the breadboard photo, im using a transistor and a led, but is removed on the schematic beacause is a non sense. In original code (what i left untouched), the optoisolator is powered without condition on setup() 
 
