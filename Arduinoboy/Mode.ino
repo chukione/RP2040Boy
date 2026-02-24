@@ -23,20 +23,33 @@
   right function.
 */
 
-void setMode()
-{
+void setMode() {
   buttonDepressed = digitalRead(pinButtonMode);
-  if (!memory[MEM_FORCE_MODE] && buttonDepressed)
-  { // if the button is pressed
+#ifdef USE_PICO
+  if (!memory[MEM_FORCE_MODE] &&
+      !buttonDepressed) { // if the button is pressed (Active Low)
+#else
+  if (!memory[MEM_FORCE_MODE] && buttonDepressed) { // if the button is pressed
+#endif
     memory[MEM_MODE]++; // increment the mode number
-    // if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if the mode is greater then 4 it will wrap back to 0
-    if(memory[MEM_MODE] > (NUMBER_OF_MODES - 2)) memory[MEM_MODE]=0;  //atm LSDJmidi is broken
+    // if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if
+    // the mode is greater then 4 it will wrap back to 0
+#ifdef USE_PICO
+    if (memory[MEM_MODE] > (NUMBER_OF_MODES - 1))
+      memory[MEM_MODE] =
+          0; // cycle back to 0 when exceeding max mode (Fixed for Pico)
+#else
+    if (memory[MEM_MODE] > (NUMBER_OF_MODES - 2))
+      memory[MEM_MODE] = 0; // atm LSDJmidi is broken
+#endif
 #if !defined(USE_DUE) && !defined(USE_PICO)
     if (!memory[MEM_FORCE_MODE])
-      EEPROM.write(MEM_MODE, memory[MEM_MODE]); // write mode to eeprom if we arnt forcing a mode in the config
+      EEPROM.write(MEM_MODE,
+                   memory[MEM_MODE]); // write mode to eeprom if we arnt forcing
+                                      // a mode in the config
 #endif
 
-#ifndef USE_PICO        // we dont use leds on rp2024 board, we use the oled display
+#ifndef USE_PICO // we dont use leds on rp2024 board, we use the oled display
     showSelectedMode(); // set the LEDS
 #endif
 #ifdef OLED
@@ -51,10 +64,8 @@ void setMode()
   linking the mode number to its corrisponding function,
   and then calling that function. function. function.
 */
-void switchMode()
-{
-  switch (memory[MEM_MODE])
-  {
+void switchMode() {
+  switch (memory[MEM_MODE]) {
   case 0:
     modeLSDJSlaveSyncSetup();
     break;
@@ -89,11 +100,11 @@ void switchMode()
   Basically it just resets some counters we use and sets a "start" flag.
 */
 
-void sequencerStart()
-{
+void sequencerStart() {
   sequencerStarted = true; // Sequencer has started?
-  countSyncPulse = 0;      // Used for status LED, counts 24 ticks (quarter notes)
-  countSyncTime = 0;       // Used to count a custom amount of clock ticks (2/4/8) for sync effects
+  countSyncPulse = 0; // Used for status LED, counts 24 ticks (quarter notes)
+  countSyncTime = 0; // Used to count a custom amount of clock ticks (2/4/8) for
+                     // sync effects
   countSyncLightTime = 0;
   switchLight = 0;
 }
@@ -102,14 +113,15 @@ void sequencerStart()
   sequencerStop is called when either LSDJ has stopped sending sync commands for
   some time in LSDJ Master mode, or when a MIDI Stop command is received in
   lsdj slave mode.
-  Basically it just resets some counters we use and sets the "start" flag to false.
+  Basically it just resets some counters we use and sets the "start" flag to
+  false.
 */
-void sequencerStop()
-{
+void sequencerStop() {
   midiSyncEffectsTime = false; // Turn off MIDI sync effects in LSDJ slave mode
   sequencerStarted = false;    // Sequencer has started?
-  countSyncPulse = 0;          // Used for status LED, counts 24 ticks (quarter notes)
-  countSyncTime = 0;           // Used to count a custom amount of clock ticks (2/4/8) for sync effects
+  countSyncPulse = 0; // Used for status LED, counts 24 ticks (quarter notes)
+  countSyncTime = 0; // Used to count a custom amount of clock ticks (2/4/8) for
+                     // sync effects
   countSyncLightTime = 0;
   switchLight = 0;
 #ifndef USE_PICO

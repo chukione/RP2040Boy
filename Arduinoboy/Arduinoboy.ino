@@ -79,9 +79,11 @@
 #define OLED_GFX
 
 #define MEM_MAX 65
-#define NUMBER_OF_MODES 7 // Right now there are 7 modes, Might be more in the future
+#define NUMBER_OF_MODES                                                        \
+  7 // Right now there are 7 modes, Might be more in the future
 
-//!!! do not edit these, they are the position in EEPROM memory that contain the value of each stored setting
+//!!! do not edit these, they are the position in EEPROM memory that contain the
+//! value of each stored setting
 #define MEM_CHECK 0
 #define MEM_VERSION_FIRST 1
 #define MEM_VERSION_SECOND 2
@@ -114,10 +116,10 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(U8X8_PIN_NONE);
 #include <U8g2lib.h>
 #ifdef ARDUINO_ARCH_RP2040
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R2, U8X8_PIN_NONE);
-#include "lsdj.h"
-#include "nanoloop.h"
-#include "mgb.h"
 #include "din5.h"
+#include "lsdj.h"
+#include "mgb.h"
+#include "nanoloop.h"
 #include "usb.h"
 #else
 U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
@@ -126,30 +128,44 @@ U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 #endif
 #endif
 
-boolean usbMode = false; // to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
+boolean usbMode = false; // to use usb for serial communication as oppose to
+                         // MIDI - sets baud rate to 38400
 
 byte defaultMemoryMap[MEM_MAX] = {
     0x7F, 0x01, 0x03, 0x7F, // memory init check
     0x00,                   // force mode (forces lsdj to be sl)
     0x00,                   // mode
     15,                     // sync effects midi channel (0-15 = 1-16)
-    15,                     // masterNotePositionMidiChannel - LSDJ in master mode will send its song position on the start button via midi note. (0-15 = 1-16)
-    15,                     // keyboardInstrumentMidiChannel - midi channel for keyboard instruments in lsdj. (0-15 = 1-16)
-    1,                      // Keyboard Compatability Mode
-    1,                      // Set to true if you want to have midi channel set the instrument number / doesnt do anything anymore
-    0, 1, 2, 3,             // midiOutNoteMessageChannels - midi channels for lsdj midi out note messages Default: channels 1,2,3,4
-    0, 1, 2, 3,             // midiOutCCMessageChannels - midi channels for lsdj midi out CC messages Default: channels 1,2,3,4
-    1, 1, 1, 1,             // midiOutCCMode - CC Mode, 0=use 1 midi CC, with the range of 00-6F, 1=uses 7 midi CCs with the
-                            // range of 0-F (the command's first digit would be the CC#), either way the value is scaled to 0-127 on output
-    1, 1, 1, 1,             // midiOutCCScaling - CC Scaling- Setting to 1 scales the CC value range to 0-127 as oppose to lsdj's incomming 00-6F (0-112) or 0-F (0-15)
-    1, 2, 3, 7, 10, 11, 12, // pu1: midiOutCCMessageNumbers - CC numbers for lsdj midi out, if CCMode is 1, all 7 ccs are used per channel at the cost of a limited resolution of 0-F
+    15, // masterNotePositionMidiChannel - LSDJ in master mode will send its
+        // song position on the start button via midi note. (0-15 = 1-16)
+    15, // keyboardInstrumentMidiChannel - midi channel for keyboard instruments
+        // in lsdj. (0-15 = 1-16)
+    1,  // Keyboard Compatability Mode
+    1, // Set to true if you want to have midi channel set the instrument number
+       // / doesnt do anything anymore
+    0, 1, 2, 3, // midiOutNoteMessageChannels - midi channels for lsdj midi out
+                // note messages Default: channels 1,2,3,4
+    0, 1, 2, 3, // midiOutCCMessageChannels - midi channels for lsdj midi out CC
+                // messages Default: channels 1,2,3,4
+    1, 1, 1,
+    1, // midiOutCCMode - CC Mode, 0=use 1 midi CC, with the range of 00-6F,
+       // 1=uses 7 midi CCs with the range of 0-F (the command's first digit
+       // would be the CC#), either way the value is scaled to 0-127 on output
+    1, 1, 1,
+    1, // midiOutCCScaling - CC Scaling- Setting to 1 scales the CC value range
+       // to 0-127 as oppose to lsdj's incomming 00-6F (0-112) or 0-F (0-15)
+    1, 2, 3, 7, 10, 11,
+    12, // pu1: midiOutCCMessageNumbers - CC numbers for lsdj midi out, if
+        // CCMode is 1, all 7 ccs are used per channel at the cost of a limited
+        // resolution of 0-F
     1, 2, 3, 7, 10, 11, 12, // pu2
     1, 2, 3, 7, 10, 11, 12, // wav
     1, 2, 3, 7, 10, 11, 12, // noi
     0, 1, 2, 3, 4,          // mGB midi channels (0-15 = 1-16)
-    0,                      // sync map midi channel start (0-15 = 1-16) (for song rows 0x80 to 0xFF it's this channel plus 1)
-    80, 1,                  // midiout bit check delay & bit check delay multiplier
-    0, 0                    // midiout byte received delay & byte received delay multiplier
+    0, // sync map midi channel start (0-15 = 1-16) (for song rows 0x80 to 0xFF
+       // it's this channel plus 1)
+    80, 1, // midiout bit check delay & bit check delay multiplier
+    0, 0   // midiout byte received delay & byte received delay multiplier
 };
 byte memory[MEM_MAX];
 
@@ -160,9 +176,9 @@ byte memory[MEM_MAX];
 /***************************************************************************
  * Teensy 3.2, Teensy LC
  *
- * Notes on Teensy: Pins are not the same as in the schematic, the mapping is below.
- * Feel free to change, all related config in is this block.
- * Be sure to compile
+ * Notes on Teensy: Pins are not the same as in the schematic, the mapping is
+ * below. Feel free to change, all related config in is this block. Be sure to
+ * compile
  ***************************************************************************/
 #if defined(__MK20DX256__) || defined(__MK20DX128__) || defined(__MKL26Z64__)
 #define USE_TEENSY 1
@@ -170,16 +186,19 @@ byte memory[MEM_MAX];
 #include <MIDI.h>
 
 #if defined(__MKL26Z64__)
-#define GB_SET(bit_cl, bit_out, bit_in) GPIOB_PDOR = ((bit_in << 3) | (bit_out << 1) | bit_cl)
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  GPIOB_PDOR = ((bit_in << 3) | (bit_out << 1) | bit_cl)
 #else
-#define GB_SET(bit_cl, bit_out, bit_in) GPIOB_PDOR = (GPIOB_PDIR & 0xfffffff4) | ((bit_in << 3) | (bit_out << 1) | bit_cl)
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  GPIOB_PDOR =                                                                 \
+      (GPIOB_PDIR & 0xfffffff4) | ((bit_in << 3) | (bit_out << 1) | bit_cl)
 #endif
 
-int pinGBClock = 16;                     // Analog In 0 - clock out to gameboy
-int pinGBSerialOut = 17;                 // Analog In 1 - serial data to gameboy
-int pinGBSerialIn = 18;                  // Analog In 2 - serial data from gameboy
-int pinMidiInputPower = 0;               // Not used!
-int pinStatusLed = 13;                   // Status LED
+int pinGBClock = 16;       // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = 17;   // Analog In 1 - serial data to gameboy
+int pinGBSerialIn = 18;    // Analog In 2 - serial data from gameboy
+int pinMidiInputPower = 0; // Not used!
+int pinStatusLed = 13;     // Status LED
 int pinLeds[] = {23, 22, 21, 20, 4, 13}; // LED Pins
 int pinButtonMode = 2;                   // toggle button for selecting the mode
 
@@ -192,9 +211,12 @@ HardwareSerial *serial = &Serial1;
 #define USE_LEONARDO
 #include <MIDIUSB.h>
 
-#define GB_SET(bit_cl, bit_out, bit_in) PORTF = (PINF & B00011111) | ((bit_cl << 7) | ((bit_out) << 6) | ((bit_in) << 5))
-// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
-// Pin distribution comes from official Arduino Leonardo documentation
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  PORTF = (PINF & B00011111) |                                                 \
+          ((bit_cl << 7) | ((bit_out) << 6) | ((bit_in) << 5))
+// ^ The reason for not using digitalWrite is to allign clock and data pins for
+// the GB shift reg. Pin distribution comes from official Arduino Leonardo
+// documentation
 
 int pinGBClock = A0;                // Analog In 0 - clock out to gameboy
 int pinGBSerialOut = A1;            // Analog In 1 - serial data to gameboy
@@ -224,11 +246,12 @@ Adafruit_USBD_MIDI usb_midi;
 // and attach usb_midi as the transport.
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, usbMIDI);
 
-#define GB_SET(bit_cl, bit_out, bit_in) \
-  digitalWriteFast(D26, bit_cl);        \
-  digitalWriteFast(D27, bit_out);       \
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  digitalWriteFast(D26, bit_cl);                                               \
+  digitalWriteFast(D27, bit_out);                                              \
   digitalWriteFast(D28, bit_in);
-// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
+// ^ The reason for not using digitalWrite is to allign clock and data pins for
+// the GB shift reg.
 
 int pinGBClock = A0;        // Analog In 0 - clock out to gameboy
 int pinGBSerialOut = A1;    // Analog In 1 - serial data to gameboy
@@ -250,41 +273,47 @@ HardwareSerial *serial = &Serial1;
 #include <MIDIUSB.h>
 #include <digitalWriteFast.h>
 
-#define GB_SET(bit_cl, bit_out, bit_in) \
-  digitalWriteFast(A0, bit_cl);         \
-  digitalWriteFast(A1, bit_out);        \
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  digitalWriteFast(A0, bit_cl);                                                \
+  digitalWriteFast(A1, bit_out);                                               \
   digitalWriteFast(A2, bit_in);
-// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
+// ^ The reason for not using digitalWrite is to allign clock and data pins for
+// the GB shift reg.
 
-int pinGBClock = A0;                    // Analog In 0 - clock out to gameboy
-int pinGBSerialOut = A1;                // Analog In 1 - serial data to gameboy
-int pinGBSerialIn = A2;                 // Analog In 2 - serial data from gameboy
-int pinMidiInputPower = 4;              // power pin for midi input opto-isolator
-int pinStatusLed = 13;                  // Status LED
+int pinGBClock = A0;       // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = A1;   // Analog In 1 - serial data to gameboy
+int pinGBSerialIn = A2;    // Analog In 2 - serial data from gameboy
+int pinMidiInputPower = 4; // power pin for midi input opto-isolator
+int pinStatusLed = 13;     // Status LED
 int pinLeds[] = {12, 11, 10, 9, 8, 13}; // LED Pins
 int pinButtonMode = 3;                  // toggle button for selecting the mode
 
 HardwareSerial *serial = &Serial;
 
 /***************************************************************************
- * Arduino UNO/Ethernet/Nano (ATmega328), Arduino UNO Wifi (ATmega4809) or Mega 2560 (ATmega2560/ATmega1280) (assumed)
+ * Arduino UNO/Ethernet/Nano (ATmega328), Arduino UNO Wifi (ATmega4809) or Mega
+ * 2560 (ATmega2560/ATmega1280) (assumed)
  ***************************************************************************/
 #else
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-#define GB_SET(bit_cl, bit_out, bit_in) PORTF = (PINF & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  PORTF = (PINF & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
 #elif defined(__AVR_ATmega4809__)
-#define GB_SET(bit_cl, bit_out, bit_in) PORTD = (PIND & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  PORTD = (PIND & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
 #else
-#define GB_SET(bit_cl, bit_out, bit_in) PORTC = (PINC & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
+#define GB_SET(bit_cl, bit_out, bit_in)                                        \
+  PORTC = (PINC & B11111000) | ((bit_in << 2) | ((bit_out) << 1) | bit_cl)
 #endif
-// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
+// ^ The reason for not using digitalWrite is to allign clock and data pins for
+// the GB shift reg.
 
-int pinGBClock = A0;                    // Analog In 0 - clock out to gameboy
-int pinGBSerialOut = A1;                // Analog In 1 - serial data to gameboy
-int pinGBSerialIn = A2;                 // Analog In 2 - serial data from gameboy
-int pinMidiInputPower = 4;              // power pin for midi input opto-isolator
-int pinStatusLed = 13;                  // Status LED
+int pinGBClock = A0;       // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = A1;   // Analog In 1 - serial data to gameboy
+int pinGBSerialIn = A2;    // Analog In 2 - serial data from gameboy
+int pinMidiInputPower = 4; // power pin for midi input opto-isolator
+int pinStatusLed = 13;     // Status LED
 int pinLeds[] = {12, 11, 10, 9, 8, 13}; // LED Pins
 int pinButtonMode = 3;                  // toggle button for selecting the mode
 
@@ -297,9 +326,13 @@ HardwareSerial *serial = &Serial;
  ***************************************************************************/
 #if !defined(USE_DUE) && !defined(USE_PICO)
 #include <EEPROM.h>
-boolean alwaysUseDefaultSettings = false; // set to true to always use the settings below, else they are pulled from memory for the software editor
+boolean alwaysUseDefaultSettings =
+    false; // set to true to always use the settings below, else they are pulled
+           // from memory for the software editor
 #else
-boolean alwaysUseDefaultSettings = true; // set to true to always use the default settings, in pico board is necessary as it doesn't have EEPROM
+boolean alwaysUseDefaultSettings =
+    true; // set to true to always use the default settings, in pico board is
+          // necessary as it doesn't have EEPROM
 #endif
 
 int eepromMemoryByte = 0; // Location of where to store settings from mem
@@ -407,8 +440,9 @@ byte midiStatusChannel;
 /***************************************************************************
  * LSDJ Keyboard mode settings
  ***************************************************************************/
-byte keyboardNotes[] = {0x1A, 0x1B, 0x22, 0x23, 0x21, 0x2A, 0x34, 0x32, 0x33, 0x31, 0x3B, 0x3A,
-                        0x15, 0x1E, 0x1D, 0x26, 0x24, 0x2D, 0x2E, 0x2C, 0x36, 0x35, 0x3D, 0x3C};
+byte keyboardNotes[] = {0x1A, 0x1B, 0x22, 0x23, 0x21, 0x2A, 0x34, 0x32,
+                        0x33, 0x31, 0x3B, 0x3A, 0x15, 0x1E, 0x1D, 0x26,
+                        0x24, 0x2D, 0x2E, 0x2C, 0x36, 0x35, 0x3D, 0x3C};
 byte keyboardOctDn = 0x05;
 byte keyboardOctUp = 0x06;
 
@@ -458,7 +492,8 @@ unsigned long mapQueueTime;
 // if it is called right before a note on message on sequencer start
 // (Note value is also a clock tick)
 uint8_t mapQueueWaitSerial = 2; // 2ms
-uint8_t mapQueueWaitUsb = 5;    // 5ms - Needs to be longer because message packet is processed all at once
+uint8_t mapQueueWaitUsb = 5; // 5ms - Needs to be longer because message packet
+                             // is processed all at once
 
 /***************************************************************************
  * mGB Settings
@@ -466,8 +501,7 @@ uint8_t mapQueueWaitUsb = 5;    // 5ms - Needs to be longer because message pack
 #define GB_MIDI_DELAY 500 // Microseconds to delay the sending of a byte to gb
 
 int midi_mode = 0; // 0 - serial midi, 1 - usb midi
-void setup()
-{
+void setup() {
   /*
    init oled
  */
@@ -477,11 +511,10 @@ void setup()
   usbMIDI.begin(MIDI_CHANNEL_OMNI);
   unsigned long time_now = 0;
   time_now = millis();
-  while (millis() < time_now + 2000) //2 seconds to mount TinyUSB device
+  while (millis() < time_now + 2000) // 2 seconds to mount TinyUSB device
   {
   }
-  if (TinyUSBDevice.mounted())
-  {
+  if (TinyUSBDevice.mounted()) {
     midi_mode = 1;
   }
   delay(1);
@@ -497,8 +530,7 @@ void setup()
   u8g2.begin();
 #ifndef USE_PICO
   u8g2.firstPage();
-  do
-  {
+  do {
     // u8g2.setFont(u8g2_font_profont22_mf);
     u8x8_SetFont(u8g2.getU8x8(), u8x8_font_7x14B_1x2_r);
     u8g2.drawXBMP(4, 1, splash_width, splash_height, splash_bits);
@@ -530,8 +562,7 @@ void setup()
   */
 
 #ifndef USE_PICO
-  for (int led = 0; led <= 5; led++)
-  {
+  for (int led = 0; led <= 5; led++) {
     pinMode(pinLeds[led], OUTPUT);
   }
 
@@ -540,10 +571,14 @@ void setup()
   pinMode(pinStatusLed, OUTPUT);
   pinMode(pinButtonMode, INPUT);
 #else
-  pinMode(pinButtonMode, INPUT_PULLDOWN);
+  pinMode(pinButtonMode, INPUT_PULLUP);
 #endif
   pinMode(pinGBClock, OUTPUT);
+#ifdef USE_PICO
+  pinMode(pinGBSerialIn, INPUT_PULLDOWN);
+#else
   pinMode(pinGBSerialIn, INPUT);
+#endif
   pinMode(pinGBSerialOut, OUTPUT);
 
 /*
@@ -552,12 +587,9 @@ void setup()
 #ifdef USE_USB
   serial->begin(31250); // 31250
 #else
-  if (usbMode == true)
-  {
+  if (usbMode == true) {
     serial->begin(38400);
-  }
-  else
-  {
+  } else {
     pinMode(pinMidiInputPower, OUTPUT);
     digitalWrite(pinMidiInputPower, HIGH); // turn on the optoisolator
 #ifdef USE_LEONARDO
@@ -575,15 +607,17 @@ void setup()
   /*
     Set Pin States
   */
-  digitalWrite(pinGBClock, HIGH);               // gameboy wants a HIGH line
-  digitalWrite(pinGBSerialOut, LOW);            // no data to send
-                                                /*
-                                                  Misc Startup
-                                                */
-  keyboardNoteStart = keyboardStartOctave + 12; // Set the octave where the actual notes start (the octave below is for the mutes, cursor, etc)
-                                                /*
-                                                  Assign the keyboard mode command array for the first octave
-                                                */
+  digitalWrite(pinGBClock, HIGH);    // gameboy wants a HIGH line
+  digitalWrite(pinGBSerialOut, LOW); // no data to send
+                                     /*
+                                       Misc Startup
+                                     */
+  keyboardNoteStart = keyboardStartOctave +
+                      12; // Set the octave where the actual notes start (the
+                          // octave below is for the mutes, cursor, etc)
+                          /*
+                            Assign the keyboard mode command array for the first octave
+                          */
   keyboardCommands[0] = keyboardMut1;
   keyboardCommands[1] = keyboardMut2;
   keyboardCommands[2] = keyboardMut3;
@@ -620,25 +654,21 @@ void setup()
 }
 
 /*
-  Main Loop, which we don't use to be able to isolate each mode into its own setup and loop functions
+  Main Loop, which we don't use to be able to isolate each mode into its own
+  setup and loop functions
 */
-void loop()
-{
+void loop() {
   setMode();
   switchMode();
 }
-#ifdef USE_PICO // draw data with core2 on rp2040 because u8g2 draw too slow on the i2c display
+#ifdef USE_PICO // draw data with core2 on rp2040 because u8g2 draw too slow on
+                // the i2c display
 #include "midi_values.h"
-void setup1()
-{
-}
-void loop1()
-{
-  if (memory[MEM_MODE] == 4)
-  { // for now only draw info for mGB mode
+void setup1() {}
+void loop1() {
+  if (memory[MEM_MODE] == 4) { // for now only draw info for mGB mode
 
-    while (uint32_t mididata = rp2040.fifo.pop())
-    {
+    while (uint32_t mididata = rp2040.fifo.pop()) {
       byte message_type = (mididata & 0x000000ff);
       byte channel = (mididata & 0x0000ff00) >> 8;
       byte data1 = (mididata & 0x00ff0000) >> 16;
@@ -646,8 +676,7 @@ void loop1()
 
       u8g2.clearBuffer();
       u8g2.setFont(u8g2_font_profont22_mf);
-      switch (memory[MEM_MODE])
-      {
+      switch (memory[MEM_MODE]) {
       case 0:
         u8g2.setCursor(5, 20);
         u8g2.print("LSDJ SLV");
@@ -677,12 +706,9 @@ void loop1()
         u8g2.setCursor(5, 20);
         break;
       }
-      if (midi_mode == 0)
-      {
+      if (midi_mode == 0) {
         u8g2.drawXBMP(105, 2, din5_width, din5_height, din5_bits);
-      }
-      else if (midi_mode == 1)
-      {
+      } else if (midi_mode == 1) {
         u8g2.drawXBMP(89, 2, usb_width, usb_height, usb_bits);
       }
       u8g2.setFont(u8g2_font_6x12_tf);
